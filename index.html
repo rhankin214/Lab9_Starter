@@ -86,22 +86,115 @@
       <button>Trigger a Global Error</button>
     </section>
   </main>
-
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "0dacc8f774414f3fadd2b75631e627d0"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+    class NonNumericError extends Error {
+      constructor(message) {
+        super(message); // (1)
+        this.name = "NaNError"; // (2)
+      }
+    }
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
+      
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        firstTest = Number(firstNum);
+        secondTest = Number(secondNum);
+        if(firstTest !== firstTest || secondTest !== secondTest)
+        {
+          console.log('a');
+          throw new NonNumericError("Found NaN");
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch(err) {
+        console.error(err.message);
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+    // buttons are arrayed left to right, top to bottom.
+    errorBtns[0].onclick = function(){console.log('log');};
+
+    errorBtns[1].onclick = function(){console.error('Oh darn!');};
+
+    errorBtns[2].onclick = function (){console.count("You've counted");};
+
+    errorBtns[3].onclick = function (){console.warn("Put the weapon down and walk away.");};
+
+    errorBtns[4].onclick = function (){
+      let firstNum = document.querySelector('#first-num').value;
+      console.assert(firstNum != 8);
+    };
+
+    errorBtns[5].onclick = function(){console.clear();};
+
+    errorBtns[6].onclick = function(){console.dir(document.querySelector("#operator"))};
+
+    errorBtns[7].onclick = function(){console.dirxml(form)};
+
+    errorBtns[8].onclick = function(){console.group();};
+    errorBtns[9].onclick = function(){console.groupEnd();};
+
+    errorBtns[10].onclick = function(){
+      let selectors = ['#first-num', '#second-num', '#operator', 'output'];
+      let values = [];
+      for(let i = 0; i < selectors.length; i++)
+      {
+        values.push(document.querySelector(selectors[i]).value);
+      }
+
+      console.table(values);
+    };
+    
+    let timerStarted = false;
+    errorBtns[11].onclick = function(){
+      try {
+        if(timerStarted){
+          throw new SyntaxError("timer already started");
+        }
+        console.time('timer');
+        console.log('timer started');
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+
+
+    errorBtns[12].onclick = function(){
+      try{
+        if(!timerStarted)
+          throw new SyntaxError("timer not started");
+        console.timeEnd('timer');
+        timerStarted = false;
+      }
+      catch (err) {
+        console.error(err.message);
+      }
+    };
+
+    errorBtns[13].onclick = function(){console.trace();};
+
+    errorBtns[14].onclick = function(){
+      //trigger global error
+      try {
+        Imboutaaaacuuuuuuuuuuuhhhhhhuuuuuuuuuuuuuhhhhh();
+      } catch {
+        console.log("No good");
+        TrackJS.track('Testing TrackJS!');
+      }
+    };
   </script>
 </body>
 
